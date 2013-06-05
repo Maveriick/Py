@@ -1,0 +1,121 @@
+import sys
+import operator
+
+# Naive-Bayesian Classifier
+def readFiles(dataFile,testFile):
+
+    #declare two empty matrices trainData, testData
+    testData = []
+    trainData = []
+
+    #read the Training Data into trainRead
+    trainRead = open(dataFile,'r')
+    for line in trainRead:
+        line = line.rstrip('\n')
+        tempList = line.split(",")
+        trainData.append(tempList)
+
+    #read the Testing Data into testRead
+    testRead = open(testFile,'r')
+    for line in testRead:
+        line = line.rstrip('\n')
+        tempList = line.split(",")
+        testData.append(tempList)
+        
+    # return the 
+    return(trainData,testData)
+
+
+
+def calcProb(classify,train,classOne,classTwo):
+    # classCol is the column num where class is defined
+    classCol = len(train[0]) - 1
+
+    #Get the total number of samples
+    totalSamples = len(train)
+
+    
+    #variables for storing 
+    yes = {}
+    no = {}
+    yesPrior = 0
+    noPrior = 0
+
+    #classOne = Yes, classTwo = No
+    for j in range(len(train)):
+            if train[j][classCol] == classOne:
+                yesPrior+=1
+            else:
+                noPrior+=1
+
+    #priori probability calculation
+    yesPriorProb = yesPrior/(totalSamples*1.0)
+    noPriorProb = noPrior/(totalSamples*1.0)
+
+
+    #this loop basically calculates the yes and no probabilites for each attribute 
+    for j in range(len(classify)):
+        yesCount = 0
+        noCount = 0
+        for i in range(totalSamples):
+            if train[i][j] == classify[j] and train[i][classCol] == classOne:
+                yesCount+=1
+                
+            if train[i][j] == classify[j] and train[i][classCol] == classTwo:  
+                noCount+=1
+                
+        if yesCount == 0:
+            yesCount = 1
+        if noCount == 0:
+            noCount = 1
+            
+        yes[classify[j]] = yesCount
+        no[classify[j]] = noCount
+
+
+    #multiply each probabilties from each group to calculate probability in the current setting
+    yesList = []
+    noList  = []
+
+    for key in yes:
+        yesList.append(yes[key]/(yesPrior * 1.0))
+    for key in no:
+        noList.append(no[key]/(noPrior *1.0))
+
+    floatYes = [float(x) for x in yesList]
+    floatNo = [float(x) for x in noList]
+
+    #calculate total probabilites for current training data
+    currentYes = reduce(operator.mul, yesList)
+    currentNo = reduce(operator.mul, noList)
+
+    
+    #calculate total Probabilites for each class totalProb = currentProbab * priori
+    totalYes = currentYes * yesPriorProb
+    totalNo = currentNo * noPriorProb
+    
+
+    #compare total Probabilities for classification
+    if totalYes > totalNo:
+        print classOne
+    else:
+        print classTwo 
+                
+        
+    
+
+def main():
+    
+    dataFile = 'train.txt'
+    testFile = 'test.txt'
+    train,test = readFiles(dataFile,testFile)
+
+    #classify is the list or the tuple which we want to classify
+    classify = ["youth","medium","yes","fair",]
+    calcProb(classify,train,"yes","no")
+    
+
+
+
+if __name__ == '__main__':
+    main()
