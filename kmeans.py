@@ -182,24 +182,7 @@ def main():
     givenClusters = sys.args[2]
     init(inputFile,givenClusters)
         
- 
 
     
-    #init(pointList,2)
-
-    
-
-    
-
-
-    
-    
-
-
-    
-            
-
-
-
 if __name__ == "__main__":
     main()
